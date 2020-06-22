@@ -32,8 +32,10 @@ class SMACross(bt.Strategy):
         # Keep a reference to the "close" line in the data[0] dataseries
         self.dataclose = self.datas[0].close
         
-        self.smaf = bt.ind.MovingAverageSimple(period=10)
-        self.smas = bt.ind.MovingAverageSimple(period=20)
+        self.smaf = bt.ind.SmoothedMovingAverage(period=self.params.pfast)
+        self.smas = bt.ind.SmoothedMovingAverage(period=self.params.pslow)
+        self.cross = bt.ind.CrossOver(self.smaf, self.smas)
+        self.roc = bt.ind.RateOfChange()
 
         # To keep track of pending orders
         self.order = None
@@ -70,17 +72,19 @@ class SMACross(bt.Strategy):
 
         # Check if we are in the market
         if not self.position:
-
-            if self.smaf > self.smas:
-                if self.smaf[-1] < self.smas[-1]:
-
-                    self.log('BUY CREATE, %.2f' % self.dataclose[0])
-                    self.order = self.buy()
+            if self.cross > 0:
+                self.log('BUY CREATE, %.2f' % self.dataclose[0])
+                self.order = self.buy()
 
         else:
 
-            if self.smas < self.smaf:
-                if self.smas[-1] > self.smaf[-1]:
+            if self.roc < -0.1:
+                self.log('SELL CREATE, %.2f' % self.dataclose[0])
+                self.order = self.sell()
+
+            
+            else:
+                if self.cross < 0:
 
                     self.log('SELL CREATE, %.2f' % self.dataclose[0])
                     self.order = self.sell()
