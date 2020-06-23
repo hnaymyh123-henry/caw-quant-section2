@@ -32,8 +32,8 @@ class SMACross(bt.Strategy):
         # Keep a reference to the "close" line in the data[0] dataseries
         self.dataclose = self.datas[0].close
         
-        self.smaf = bt.ind.MovingAverageSimple(period=self.params.pfast)
-        self.smas = bt.ind.MovingAverageSimple(period=self.params.pslow)
+        self.smaf = bt.ind.SmoothedMovingAverage(period=self.params.pfast)
+        self.smas = bt.ind.SmoothedMovingAverage(period=self.params.pslow)
         self.cross = bt.ind.CrossOver(self.smaf, self.smas)
         self.roc = bt.ind.RateOfChange()
 
@@ -78,10 +78,16 @@ class SMACross(bt.Strategy):
 
         else:
 
-            if self.cross < 0:
-
+            if self.roc < -0.1:
                 self.log('SELL CREATE, %.2f' % self.dataclose[0])
                 self.order = self.sell()
+
+            
+            else:
+                if self.cross < 0:
+
+                    self.log('SELL CREATE, %.2f' % self.dataclose[0])
+                    self.order = self.sell()
 
                 
 
@@ -113,7 +119,7 @@ if __name__ == '__main__':
     # add logger
     cerebro.addwriter(
         bt.WriterFile,
-        out=os.path.join(logdir, 'log_SMAC.txt'),
+        out=os.path.join(logdir, 'log_SoomthedMAC.txt'),
         csv=True)
 
     # Print out the starting conditions
@@ -129,5 +135,5 @@ if __name__ == '__main__':
     plt.rcParams['figure.figsize'] = [13.8, 10]
     fig = cerebro.plot(style='candlestick', barup='green', bardown='red')
     fig[0][0].savefig(
-	    os.path.join(reportdir, 'report_SMAC.png'),
+	    os.path.join(reportdir, 'report_SmoothedMAC.png'),
 	    dpi=480)
