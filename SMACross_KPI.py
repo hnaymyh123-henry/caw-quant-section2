@@ -107,7 +107,7 @@ if __name__ == '__main__':
     thestarts = cerebro.run()
 
     df = pd.DataFrame(columns=('periods_fast', 'periods_slow', 'end_value', 'return_ave', 'max_draw_downs', 'win_trades',
-                              'loss_trades', 'total_trades', 'win_ratio', 'ave_win_value', 'ave_loss_value', 'ave_win_loss_ratio'), index=[0])
+                               'loss_trades', 'total_trades', 'win_ratio', 'ave_win_value', 'ave_loss_value', 'ave_win_loss_ratio'), index=[0])
 
     for i in range(0, 450):
 
@@ -136,12 +136,18 @@ if __name__ == '__main__':
         end_value = cash + int(total_pnl)
 
         data = pd.DataFrame({'periods_fast': periods_fast, 'periods_slow': periods_slow, 'end_value': end_value, 'return_ave': return_ave, 'max_draw_downs': max_draw_downs, 'win_trades': wintrades,
-                           'loss_trades': losstrades, 'total_trades': totaltrades, 'win_ratio': winratio, 'ave_win_value': ave_win_value, 'ave_loss_value': ave_loss_value, 'ave_win_loss_ratio': average_win_loss_ratio}, index=[0])
+                             'loss_trades': losstrades, 'total_trades': totaltrades, 'win_ratio': winratio, 'ave_win_value': ave_win_value, 'ave_loss_value': ave_loss_value, 'ave_win_loss_ratio': average_win_loss_ratio}, index=[0])
 
         df = pd.concat([data, df], axis=0, ignore_index=True)
-        
-    df.to_csv('KPI_SMAC.csv')
+    df['return_rank'] = df['return_ave'].rank(method='max')
+    df['max_draw_downs_rank'] = df['max_draw_downs'].rank(method='min')
+    df['win_ratio_rank'] = df['win_ratio'].rank(method='max')
+    df['ave_win_loss_ratio_rank'] = df['ave_win_loss_ratio'].rank(
+        method='max')
+    df['rank'] = df[['return_rank', 'max_draw_downs_rank',
+                     'win_ratio_rank', 'ave_win_loss_ratio_rank']].mean(axis=1)
+    df4 = df.sort_values(by=['rank'])
 
-    print(df.head())
+    print(df4.head())
     # Print out the final result
     #print('Final Portfolio Value: %.2f' % cerebro.broker.getvalue())
