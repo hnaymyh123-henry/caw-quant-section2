@@ -149,5 +149,6 @@ if __name__ == '__main__':
     df4 = df.sort_values(by=['rank'])
 
     print(df4.head())
+    df4.to_csv('KPI_SMAC.csv')
     # Print out the final result
     #print('Final Portfolio Value: %.2f' % cerebro.broker.getvalue())
