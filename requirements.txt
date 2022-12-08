@@ -1,6 +1,6 @@
 astroid==2.4.1
 backtrader==1.9.75.123
-certifi==2020.4.5.2
+certifi==2022.12.7
 colorama==0.4.3
 cycler==0.10.0
 isort==4.3.21
